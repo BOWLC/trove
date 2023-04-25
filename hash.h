@@ -1,17 +1,21 @@
 #include <stdio.h> 
 #include "lists.h"
 
-typedef LISTWORD *HASHTABLE;
+typedef LISTWORD *HASHWORD;
+typedef LISTPATH *HASHPATH;
+typedef LISTFILE *HASHFILE;
 
 //Declared here, defined in hash.c
-extern uint32_t hashFunction(char *hashme);
 
-extern uint32_t getIndex(char *hashme);
+extern HASHWORD *make_hashword(void);
+extern HASHFILE *make_hashfile(void);
 
-extern HASHTABLE *make_hashtable(void);
 
-extern void hashtable_add(HASHTABLE *table, char *newword);
+extern void hashword_add(HASHWORD *table, char *newword);
 
-extern bool hashtable_find(HASHTABLE *table, char *word);
+extern bool hashword_find(HASHWORD *table, char *word);
 
-extern void testlist(HASHTABLE *table);
+
+extern void hashfile_add(HASHFILE *table, char *newword);
+
+extern bool hashfile_find(HASHFILE *table, char *word);

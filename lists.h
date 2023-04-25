@@ -8,7 +8,7 @@ typedef struct ListFile
     struct ListFile *next;//list for hashtable
 } LISTFILE;
 
-//List of paths that a word is found
+//List of *path associated with each file
 typedef struct ListPath
 {
     struct ListFile *path;

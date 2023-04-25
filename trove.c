@@ -10,16 +10,9 @@
 
 #define OPTLIST "f::brul::"
 //#define _POSIX_SOURCE
-#define DEFAULT_TROVEFILE "/tmp/trove"
-#define DEFAULT_WORDLEN 4
-
-void searchTrove(char *trovename, char *word);
-int buildTrove(char *trovename, char *paths[]);
-int trimTrove(char *trovename, char *word[]);
-int updateTrove(char *trovename, char *word[]);
 void usage(int ecode);
 void arg_validate_l(int arg);
-int arg_validate_f(char *dir);
+int path_validate(char *dir);
 
 int main(int argc, char *argv[]){
 
@@ -42,7 +35,7 @@ int main(int argc, char *argv[]){
                     strcpy(fdir, optarg); //only change from default path if arg provided
                 }
                 else printf("Using default trovefile path: %s\n", DEFAULT_TROVEFILE);
-                f_access = arg_validate_f(fdir);
+                f_access = path_validate(fdir);
                 break;
             case 'b':
                 bflag = !bflag;
@@ -74,20 +67,71 @@ int main(int argc, char *argv[]){
         }
     }
 
+
+    int onum = bflag + rflag + uflag;
     //mutually exclusive options combined
-    if(( bflag && rflag) || (bflag && uflag )|| (rflag && uflag )) usage(1);
+    if(onum > 1) usage(1);
+    
+
+    if(!onum){
+        //Search trovefile since other options not provided
+        if(argc - optind != 1) {
+            //Program only accepts a single word at a time
+            usage(1);
+        }
+
+        extract(fdir);//placeholder
+
+        char *word = argv[optind];
+        searchTrove(fdir, word);
+    }
+    else{
+
+        printf("b/r/y trove.\n");
+        //make hash table of filelist 
+        HASHFILE *ptable;
+        ptable = make_hashfile();
+
+        //make list of files for parsing
+        LISTFILE *filelist =  NULL;
+
+        //Create hash table for path list
+        for(;optind < argc; optind++){
+            //parse remaining arguments (file list)
+            char *path = argv[optind];
+            if(path_validate(path)){
+                //path invalid
+                usage(6);
+                exit(EXIT_FAILURE);
+            }
+
+            hashfile_add(ptable, path); 
+            filelist = add_listfile(filelist, path);
+
+        }
+        printf("=== PRINTING FILELIST FROM LIST ===\n");
+        while(filelist != NULL){
+            printf(" %s\n", filelist->path);
+            filelist = filelist->next;
+        }
+
+        if(bflag){
+            buildTrove(fdir, argv);//placeholder
+        }
+        if(rflag){
+            trimTrove(fdir, argv);//placeholder
+        }
+        if(uflag){
+            updateTrove(fdir, argv);//placeholder
+        }
+
+        compress(fdir);//placeholder
+    }
 
     //optind is index of first non option argument
     //check_files(FILE LIST);  //check that the files in file list exist
     //import_trove(trovefile); //load trove into memory
     //check_trove(trovefile in memry); //check that files indexed still exist
-    searchTrove(fdir, fdir);
-    buildTrove(fdir, argv);
-    trimTrove(fdir, argv);
-    updateTrove(fdir, argv);
-    compress(fdir);
-    extract(fdir);
-
     return 0;
 }
 
@@ -98,7 +142,7 @@ void arg_validate_l(int arg){
     }
 }
 
-int arg_validate_f(char *dir){
+int path_validate(char *dir){
     if(access(dir, F_OK) != 0){
         //file does not exist
         usage(2);
@@ -119,26 +163,6 @@ int arg_validate_f(char *dir){
     return 0;
 
 }
-
-void searchTrove(char *trovename, char *word){
-    printf("Search trove.\n");
-}
-
-int buildTrove(char *trovename, char *paths[]){
-    return 0;
-    printf("Build trove.\n");
-}
-
-int trimTrove(char *trovename, char *word[]){
-    printf("Trim trove.\n");
-    return 0;
-}
-
-int updateTrove(char *trovename, char *word[]){
-    printf("Update trove.\n");
-    return 0;
-}
-
 void usage(int ecode){
     switch(ecode){
         case 1:
@@ -160,6 +184,9 @@ void usage(int ecode){
             break;
         case 5:
             printf("Error: [-b | -r | -u] options selected, but no write access to trovefile.\n");
+            break;
+        case 6:
+            printf("Error: filelist.  Invalid path provided.\n");
             break;
         default:
             printf("SOME SYSTEM ERROR OR SOMETHING\n");
