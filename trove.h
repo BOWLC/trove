@@ -9,6 +9,7 @@
 #define DEFAULT_TROVEFILE "/tmp/trove"
 #define DEFAULT_WORDLEN 4
 
+void usage(int code);
 //declared here, defined in zipcat.c
 extern int compress(char *trovename);
 

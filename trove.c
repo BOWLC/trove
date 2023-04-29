@@ -1,15 +1,16 @@
+#define _XOPEN_SOURCE 500 //required for opendir()
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
 #include <getopt.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <linux/limits.h>
 
 #include "trove.h"
 
 #define OPTLIST "f::brul::"
-//#define _POSIX_SOURCE
 void usage(int ecode);
 void arg_validate_l(int arg);
 int path_validate(char *dir);
@@ -67,7 +68,6 @@ int main(int argc, char *argv[]){
         }
     }
 
-
     int onum = bflag + rflag + uflag;
     //mutually exclusive options combined
     if(onum > 1) usage(1);
@@ -88,35 +88,47 @@ int main(int argc, char *argv[]){
     else{
 
         printf("b/r/y trove.\n");
-        //make hash table of filelist 
+        //make hash table for path list
         HASHFILE *ptable;
         ptable = make_hashfile();
 
-        //make list of files for parsing
+        //make lists of files/folderes for parsing
         LISTFILE *filelist =  NULL;
+        LISTFILE *folderlist = NULL;
 
-        //Create hash table for path list
+        DIR *dirp;
+ 
         for(;optind < argc; optind++){
-            //parse remaining arguments (file list)
-            char *path = argv[optind];
+            //parse remaining arguments (file list) and change to absolute path
+            char path[PATH_MAX];
+            realpath(argv[optind], path);
+            if(path == NULL){
+                perror("main, realpath Error");
+                usage(1);
+                exit(EXIT_FAILURE);
+            }
             if(path_validate(path)){
                 //path invalid
                 usage(6);
                 exit(EXIT_FAILURE);
             }
-
+            //all dirs OK
+            if((dirp = opendir( path)) != NULL){
+            printf("main  ::  found a directory in args: %s.\n", path);
+            folderlist = add_listfile(folderlist, path);
+            } 
+            else{
             hashfile_add(ptable, path); 
+            printf("main  ::  found a file in args: %s\n", path);
             filelist = add_listfile(filelist, path);
 
-        }
-        printf("=== PRINTING FILELIST FROM LIST ===\n");
-        while(filelist != NULL){
-            printf(" %s\n", filelist->path);
-            filelist = filelist->next;
+            }
+
         }
 
         if(bflag){
-            buildTrove(fdir, argv);//placeholder
+            
+            filelist = findFiles(filelist, folderlist, ptable, lmin, fdir );//find files in directories
         }
         if(rflag){
             trimTrove(fdir, argv);//placeholder
@@ -125,6 +137,11 @@ int main(int argc, char *argv[]){
             updateTrove(fdir, argv);//placeholder
         }
 
+        printf("=== PRINTING FILELIST FROM LIST ===\n");
+        while(filelist != NULL){
+            printf(" %s\n", filelist->path);
+            filelist = filelist->next;
+        }
         compress(fdir);//placeholder
     }
 
@@ -142,27 +159,6 @@ void arg_validate_l(int arg){
     }
 }
 
-int path_validate(char *dir){
-    if(access(dir, F_OK) != 0){
-        //file does not exist
-        usage(2);
-        return 2;
-    }    
-    else
-        printf("File exists.\n");
-    if(access(dir, R_OK) != 0){
-        usage(3);
-        return 3;
-    }
-    printf("Read access OK.\n");
-    if(access(dir, W_OK) != 0){
-        usage(4);
-        return 4;
-    }
-    printf("Write access OK.\n");
-    return 0;
-
-}
 void usage(int ecode){
     switch(ecode){
         case 1:

@@ -13,12 +13,12 @@ trove.o : trove.c trove.h
 	$(C11) $(CFLAGS) -c trove.c
 
 trovefile.o : trovefile.c trovefile.h
-	$(C11) $(CFLAGS) -c - trovefile.c
+	$(C11) $(CFLAGS) -c trovefile.c
 
 hash.o : hash.c hash.h
 	$(C11) $(CFLAGS) -c hash.c
 
-zipcat.o : zipcat.c trove.h
+zipcat.o : zipcat.c
 	$(C11) $(CFLAGS) -c zipcat.c
 
 lists.o : lists.c lists.h

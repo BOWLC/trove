@@ -1,3 +1,5 @@
+#ifndef _LISTS_TROVE
+#define _LISTS_TROVE
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -34,3 +36,4 @@ extern void delete_listpath(LISTPATH *list);
 extern bool find_listfile(LISTFILE *list, char *path);
 extern LISTFILE *add_listfile(LISTFILE *list, char *path);
 extern void delete_listfile(LISTFILE *list);
+#endif

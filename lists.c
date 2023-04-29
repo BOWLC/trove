@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "lists.h"
+
 char *my_strdup(char *string){
     int len;
     len = strlen(string) +1;
