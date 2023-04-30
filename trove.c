@@ -90,7 +90,9 @@ int main(int argc, char *argv[]){
         printf("b/r/y trove.\n");
         //make hash table for path list
         HASHFILE *ptable;
+        HASHWORD *wtable;
         ptable = make_hashfile();
+        wtable = make_hashword();
 
         //make lists of files/folderes for parsing
         LISTFILE *filelist =  NULL;
@@ -107,6 +109,7 @@ int main(int argc, char *argv[]){
                 usage(1);
                 exit(EXIT_FAILURE);
             }
+            //TODO PATH VALIDATION SHOULD BE MOVED/CONSOLIDATED
             if(path_validate(path)){
                 //path invalid
                 usage(6);
@@ -126,9 +129,9 @@ int main(int argc, char *argv[]){
 
         }
 
+        filelist = findFiles(filelist, folderlist, ptable, lmin, fdir );//find files in directories
         if(bflag){
-            
-            filelist = findFiles(filelist, folderlist, ptable, lmin, fdir );//find files in directories
+            buildTrove(filelist, ptable, wtable, lmin);
         }
         if(rflag){
             trimTrove(fdir, argv);//placeholder
@@ -136,19 +139,13 @@ int main(int argc, char *argv[]){
         if(uflag){
             updateTrove(fdir, argv);//placeholder
         }
-
-        printf("=== PRINTING FILELIST FROM LIST ===\n");
-        while(filelist != NULL){
-            printf(" %s\n", filelist->path);
-            filelist = filelist->next;
-        }
         compress(fdir);//placeholder
     }
 
     //optind is index of first non option argument
     //check_files(FILE LIST);  //check that the files in file list exist
     //import_trove(trovefile); //load trove into memory
-    //check_trove(trovefile in memry); //check that files indexed still exist
+    //check_trove(trovefile in memory); //check that files indexed still exist
     return 0;
 }
 

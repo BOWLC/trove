@@ -36,4 +36,6 @@ extern void delete_listpath(LISTPATH *list);
 extern bool find_listfile(LISTFILE *list, char *path);
 extern LISTFILE *add_listfile(LISTFILE *list, char *path);
 extern void delete_listfile(LISTFILE *list);
+
+extern LISTPATH *get_paths_from_list(LISTWORD *list, char *word);
 #endif

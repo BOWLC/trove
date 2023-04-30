@@ -11,4 +11,5 @@ LISTFILE *findFiles(LISTFILE *list,LISTFILE *folderlist, HASHFILE *ptable, int w
 int trimTrove(char *trovename, char *word[]);
 int updateTrove(char *trovename, char *word[]);
 int path_validate(char *dir);
+LISTWORD *buildTrove(LISTFILE *filelist, HASHFILE *ptable,  HASHWORD *wordhash, int wordmin);
 #endif

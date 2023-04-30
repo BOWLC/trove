@@ -143,4 +143,15 @@ void delete_listfile(LISTFILE *list){
     return;
 }
 
+//returns list that points to each path using the hashtable location
+LISTPATH *get_paths_from_list(LISTWORD *list, char *word){
+    while(list != NULL){
+        if(strcmp(list->word, word) == 0){
+            return list->path;
+        }
+        list = list->next;
+    }
+    return NULL;
+}
+
 

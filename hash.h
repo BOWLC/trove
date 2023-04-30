@@ -18,8 +18,11 @@ extern bool hashword_add(HASHWORD *table, char *newword);
 
 extern bool hashword_find(HASHWORD *table, char *word);
 
-
 extern bool hashfile_add(HASHFILE *table, char *newword);
 
 extern bool hashfile_find(HASHFILE *table, char *word);
+
+
+extern LISTWORD *get_listword(HASHWORD *table, char *word);
+extern LISTFILE *get_listfile(HASHFILE *table, char *path);
 #endif

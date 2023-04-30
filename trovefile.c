@@ -9,8 +9,13 @@
 
 #include "trovefile.h"
 
+//maximum length of a word considered valid
+#define WORDLEN_MAX 1024
 
-LISTFILE *filesindir(LISTFILE *path, char *folder, HASHFILE *ptable);
+
+LISTFILE *filesindir(LISTFILE *path, char *folder, HASHFILE *ptable);//recursive search dir for files
+
+void insertTrove(HASHWORD *wordhash, HASHFILE *pathhash, char *pathname, char *word);
 
 LISTFILE *findFiles(LISTFILE *filelist, LISTFILE *folders, HASHFILE *ptable, int wordmin, char *trovename){
 
@@ -27,23 +32,71 @@ LISTFILE *findFiles(LISTFILE *filelist, LISTFILE *folders, HASHFILE *ptable, int
     folders = folders->next;
 
     }
-    /*
+    
+    return filelist;
+}
+
+LISTWORD  *buildTrove(LISTFILE *filelist, HASHFILE *pathhash, HASHWORD *wordhash, int wordmin){
+    printf("Build trove\n");
     while(filelist!= NULL){
         FILE *spTrove;
-        char *trovename = (*filelist)->path;
-        spTrove = fopen(trovename, "w");
+        char *pathname = filelist->path;
+        char cbuff;
+        char wordbuff[WORDLEN_MAX];
+        int wordlen = 0;
+        spTrove = fopen(pathname, "r");
         if(spTrove == NULL){
-            printf("buildTrove :: Could not open new file %s\n", trovename);
+            printf("buildTrove :: Could not open new file %s\n", pathname);
+            perror("buildtrove error: ");
+            filelist = filelist->next;
+            continue;
         }
-        printf("Build trove.\n");
+
+        printf("reading file: \n");
+        while((cbuff = fgetc(spTrove)) != EOF){
+            printf("%c", cbuff);
+            if((('a' < cbuff) && (cbuff  < 'z')) || (( 'A' < cbuff ) && ( cbuff < 'Z')) || (('0' < cbuff ) && (cbuff< '9'))){
+                //character is alphanumeric
+                wordbuff[wordlen] = cbuff;
+                wordlen++;
+            }
+            else{
+                if(wordlen <  wordmin) continue;
+                wordbuff[wordlen] = '\0';
+                insertTrove(wordhash, pathhash, pathname, wordbuff);
+                wordlen = 0;
+            }
+        }
+        printf("\n");
 
         if(fclose(spTrove) == EOF){
             printf("Error closing Trovefile built in buildTrove.\n");
         }
-        folders = folders->next;
+        filelist = filelist->next;
     }
-    */
-    return filelist;
+    return NULL;
+}
+
+void insertTrove(HASHWORD *wordhash, HASHFILE *pathhash, char *pathname, char *word){
+    LISTPATH *pathlist;
+    LISTWORD *wordinhash;
+    LISTFILE *pathinhash;
+
+    printf("insertTrove ::  Adding %s @ %s to trovefile.\n", word, pathname);
+
+    hashword_add(wordhash, word);
+
+    wordinhash = get_listword(wordhash, word);
+    pathinhash = get_listfile(pathhash, pathname);
+
+    if(wordinhash != NULL){
+        //word in hash table
+        pathlist = add_listpath(wordinhash->path, pathinhash);
+        wordinhash->path = pathlist;
+    }
+    else{
+        printf("insertTrove Error ::  word not added to hash table correctly.\n");
+    }
 }
 
 void searchTrove(char *trovename, char *word){
@@ -72,10 +125,8 @@ LISTFILE *filesindir(LISTFILE *path, char *folder, HASHFILE *ptable){
         nextpath[0] = '\0';
         strcpy(nextpath, currdir);
         errno =0;
-        printf("dirn not NULL\n");
         if((dirn =  readdir(dirp)) != NULL){
 
-            strcat(nextpath, dirn->d_name);
             if((strcmp(dirn->d_name, ".") == 0) || (strcmp(dirn->d_name, "..") == 0)) continue;
 
             strcat(nextpath, "/");
@@ -86,7 +137,7 @@ LISTFILE *filesindir(LISTFILE *path, char *folder, HASHFILE *ptable){
             if((dirpn = opendir(nextpath)) != NULL){
                 //don't add directory onto the list (it's a folder)
                 //recursively search folders for files and add to the START of the list
-                filesindir(path, nextpath, ptable);
+                path = filesindir(path, nextpath, ptable);
                 closedir(dirpn);
                 continue;
             }

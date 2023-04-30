@@ -2,6 +2,7 @@
 #include <stdint.h> //for uint32_t
 #include <stdlib.h> //calloc
 #include <stdbool.h>
+#include <string.h>
 
 #include "hash.h"
 
@@ -36,7 +37,7 @@ bool hashword_find( HASHWORD *table, char *word){
     return find_listword(table[i], word);
 }
 
-bool hashtword_add( HASHWORD *table, char *newword){
+bool hashword_add( HASHWORD *table, char *newword){
     if(hashword_find(table, newword)){
         printf("It's already in the hash table!\n");
         return true;
@@ -62,6 +63,8 @@ bool hashfile_find(HASHFILE *table, char *word){
     return find_listfile(table[i], word);
 }
 
+
+
 //returns true if word already in table
 bool hashfile_add(HASHFILE *table, char *newword){
     if(hashfile_find(table, newword)){
@@ -72,4 +75,29 @@ bool hashfile_add(HASHFILE *table, char *newword){
     table[index] = add_listfile(table[index], newword);
     printf(" hashfile_add :: added path to hash table: %s\n", table[index]->path);
     return false;
+}
+
+//returns the word list structure from a hash table
+LISTWORD *get_listword(HASHWORD *table, char *word){
+    int i = getIndex( word );
+    LISTWORD *list = table[i];
+    while(list != NULL){
+        if(strcmp(list->word, word) == 0){
+            return list;
+        }
+        list = list->next;
+    }
+    return NULL;
+}
+//returns the word list structure from a hash table
+LISTFILE *get_listfile(HASHFILE *table, char *path){
+    int i = getIndex( path );
+    LISTFILE *list = table[i];
+    while(list != NULL){
+        if(strcmp(list->path, path) == 0){
+            return list;
+        }
+        list = list->next;
+    }
+    return NULL;
 }
