@@ -20,7 +20,6 @@ char *my_strdup(char *string){
 bool find_listword(LISTWORD *list, char *word){
     while(list != NULL){
         if(strcmp(list->word, word) == 0){
-            printf("\t  find_listword :: word %s found in the list already: %s, returning.\n", word, list->word);
             return true;
         }
         list = list->next;
@@ -47,7 +46,6 @@ LISTWORD *add_listword(LISTWORD *list, char *newword){
     if(find_listword(list, newword)) return list; //only add each word once in a list
     LISTWORD *new = new_listword(newword);
     new->next = list;
-    printf("\t add_listword :: List node added to list, word: %s\n", new->word);
     return new;
 }
 
@@ -88,7 +86,6 @@ LISTPATH *add_listpath(LISTPATH *list, LISTFILE *path){
     if(path == NULL) printf("\t add_listpath :: LISTFILE *path is NULL!!!!!\n");
     LISTPATH *new = new_listpath(path);
     new->next = list;
-    printf("\t add_list :: Listpath added to list.\n");
     return new;
 }
 
@@ -104,7 +101,6 @@ void delete_listpath(LISTPATH *list){
 bool find_listfile(LISTFILE *list, char *path){
     while(list != NULL){
         if(strcmp(list->path, path) == 0){
-            printf("\t  find_listfile :: path found in the list already, returning.\n");
             return true;
         }
         list = list->next;
@@ -130,7 +126,6 @@ LISTFILE *add_listfile(LISTFILE *list, char *newpath){
     if(find_listfile(list, newpath)) return list; //only add each word once in a list
     LISTFILE *new = new_listfile(newpath);
     new->next = list;
-    printf("\t add_list :: List node added to list, word: %s\n", new->path);
     return new;
 }
 

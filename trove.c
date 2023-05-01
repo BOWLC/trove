@@ -97,6 +97,8 @@ int main(int argc, char *argv[]){
         //make lists of files/folderes for parsing
         LISTFILE *filelist =  NULL;
         LISTFILE *folderlist = NULL;
+        //make list of all words found for building trove file
+        LISTWORD *allwords = NULL;
 
         DIR *dirp;
  
@@ -131,7 +133,13 @@ int main(int argc, char *argv[]){
 
         filelist = findFiles(filelist, folderlist, ptable, lmin, fdir );//find files in directories
         if(bflag){
-            buildTrove(filelist, ptable, wtable, lmin);
+            allwords = buildTrove(filelist, ptable, wtable, lmin);
+            printf("printing all words found::::::\n");
+            while(allwords !=  NULL){
+                printf("%s\n", allwords->word);
+                allwords = allwords->next;
+            }
+            
         }
         if(rflag){
             trimTrove(fdir, argv);//placeholder

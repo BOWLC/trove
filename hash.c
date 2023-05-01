@@ -33,18 +33,15 @@ HASHWORD *make_hashword(void){
 
 bool hashword_find( HASHWORD *table, char *word){
     int i = getIndex(word);
-    printf("GetIndex, index: %d\n", i);
     return find_listword(table[i], word);
 }
 
 bool hashword_add( HASHWORD *table, char *newword){
     if(hashword_find(table, newword)){
-        printf("It's already in the hash table!\n");
         return true;
     }
     int index = getIndex(newword);
     table[index] = add_listword(table[index], newword);
-    printf(" hashword_add :: added word to hash table: %s\n", table[index]->word);
     return false;
 }
 
@@ -59,7 +56,6 @@ HASHFILE *make_hashfile(void){
 
 bool hashfile_find(HASHFILE *table, char *word){
     int i = getIndex(word);
-    printf("GetIndex, index: %d\n", i);
     return find_listfile(table[i], word);
 }
 
@@ -68,12 +64,10 @@ bool hashfile_find(HASHFILE *table, char *word){
 //returns true if word already in table
 bool hashfile_add(HASHFILE *table, char *newword){
     if(hashfile_find(table, newword)){
-        printf("It's already in the hash table!\n");
         return true;
     }
     int index = getIndex(newword);
     table[index] = add_listfile(table[index], newword);
-    printf(" hashfile_add :: added path to hash table: %s\n", table[index]->path);
     return false;
 }
 
