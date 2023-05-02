@@ -22,8 +22,8 @@ LISTFILE *findFiles(LISTFILE *filelist, LISTFILE *folders, HASHFILE *ptable, int
 
     //add all files within folders to the list
     while(folders != NULL){
-    filelist = filesindir(filelist, folders->path, ptable);
-    folders = folders->next;
+        filelist = filesindir(filelist, folders->path, ptable);
+        folders = folders->next;
     }
     return filelist;
 }
@@ -44,37 +44,39 @@ LISTWORD  *buildTrove(LISTFILE *filelist, HASHFILE *pathhash, HASHWORD *wordhash
             printf("buildTrove :: Could not open new file %s\n", pathname);
             perror("buildtrove error: ");
             filelist = filelist->next;
-            continue;
         }
+        else{
 
-        printf("reading file: \n");
-        while((cbuff = fgetc(spTrove)) != EOF){
-            printf("%c", cbuff);
-            if(isalpha(cbuff) || isdigit(cbuff)){ 
-
-                //character is alphanumeric
-                wordbuff[wordlen] = cbuff;
-                wordlen++;
-                if(wordlen == WORDLEN_MAX) continue; //current alphanumeric sequence exceeds max length
-            }
-            else if(wordlen <  wordmin){
-                wordlen = 0;
-                continue;
-            }
-            else{
-                wordbuff[wordlen] = '\0';
-                if(!hashword_find(wordhash, wordbuff)){//only add word if it's not in the hash table already
-                    allwords = add_listword(allwords, wordbuff);//Add word to quick ref list
+            printf("reading file: \n");
+            while((cbuff = fgetc(spTrove)) != EOF){
+                printf("%c", cbuff);
+                if(wordlen +1 < WORDLEN_MAX){//word not too long
+                    if(isalpha(cbuff) || isdigit(cbuff)){ 
+                        //character is alphanumeric
+                        wordbuff[wordlen] = cbuff;
+                        wordlen++;
+                    }
+                    else if(wordlen >=  wordmin){//word not too short
+                        wordbuff[wordlen] = '\0';
+                        if(!hashword_find(wordhash, wordbuff)){//only add word if it's not in the hash table already
+                            allwords = add_listword(allwords, wordbuff);//Add word to quick ref list
+                            printf("allwords id on top: %d\n", allwords->id);
+                        }
+                        insertTrove(wordhash, pathhash, pathname, wordbuff);
+                        wordlen = 0;//added complete word
+                    }
+                    else wordlen = 0;//word complete and too short
                 }
-                insertTrove(wordhash, pathhash, pathname, wordbuff);
-                wordlen = 0;
+                else{
+                    wordlen = 0;//word too long
+                }
+                
             }
-            
-        }
-        printf("\n");
+            printf("\n");
 
-        if(fclose(spTrove) == EOF){
-            printf("Error closing Trovefile built in buildTrove.\n");
+            if(fclose(spTrove) == EOF){
+                printf("Error closing Trovefile built in buildTrove.\n");
+            }
         }
         filelist = filelist->next;
     }
@@ -88,6 +90,7 @@ void insertTrove(HASHWORD *wordhash, HASHFILE *pathhash, char *pathname, char *w
 
 
     hashword_add(wordhash, word);
+    printf("insertTrove word to be added: %s \n", word);
 
     wordinhash = get_listword(wordhash, word);
     pathinhash = get_listfile(pathhash, pathname);
@@ -129,6 +132,7 @@ LISTFILE *filesindir(LISTFILE *path, char *folder, HASHFILE *ptable){
         nextpath[0] = '\0';
         strcpy(nextpath, currdir);
         errno =0;
+
         if((dirn =  readdir(dirp)) != NULL){
 
             if((strcmp(dirn->d_name, ".") == 0) || (strcmp(dirn->d_name, "..") == 0)) continue;
@@ -143,13 +147,14 @@ LISTFILE *filesindir(LISTFILE *path, char *folder, HASHFILE *ptable){
                 //recursively search folders for files and add to the START of the list
                 path = filesindir(path, nextpath, ptable);
                 closedir(dirpn);
-                continue;
             }
-
-            if(!hashfile_add(ptable, nextpath)){
-                //File not already in the list
-                path = add_listfile(path, nextpath);//add to list
-                closedir(dirpn);
+            else{
+                if(!hashfile_add(ptable, nextpath)){
+                    //File not already in the list
+                    path = add_listfile(path, nextpath);//add to list
+                    printf("listfile top is: %d\n", path->id);
+                    closedir(dirpn);
+                }
             }                
         }
     } while(dirn != NULL); 

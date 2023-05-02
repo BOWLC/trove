@@ -6,6 +6,7 @@
 //Pathname to be stored in hash table
 typedef struct ListFile
 {
+    int id;
     char *path;//path name
     struct ListFile *next;//list for hashtable
 } LISTFILE;
@@ -20,6 +21,7 @@ typedef struct ListPath
 //Words to be stored in hash table
 typedef struct ListWord
 {
+    int id;
     char *word;
     struct ListPath *path; //list of paths where word is found
     struct ListWord *next; //list for hashtable

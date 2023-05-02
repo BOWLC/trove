@@ -94,7 +94,7 @@ int main(int argc, char *argv[]){
         ptable = make_hashfile();
         wtable = make_hashword();
 
-        //make lists of files/folderes for parsing
+        //make lists of files/folders for parsing/quickref
         LISTFILE *filelist =  NULL;
         LISTFILE *folderlist = NULL;
         //make list of all words found for building trove file
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]){
         for(;optind < argc; optind++){
             //parse remaining arguments (file list) and change to absolute path
             char path[PATH_MAX];
-            realpath(argv[optind], path);
+            realpath(argv[optind], path);//get absolute path
             if(path == NULL){
                 perror("main, realpath Error");
                 usage(1);
@@ -131,7 +131,9 @@ int main(int argc, char *argv[]){
 
         }
 
+        printf("before findFiles\n");
         filelist = findFiles(filelist, folderlist, ptable, lmin, fdir );//find files in directories
+        printf("got past findfiles call\n");
         if(bflag){
             allwords = buildTrove(filelist, ptable, wtable, lmin);
             printf("printing all words found::::::\n");

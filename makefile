@@ -3,11 +3,11 @@ PROJECT = trove
 HEADERS = $(PROJECT).h
 OBJ = trove.o trovefile.o hash.o zipcat.o lists.o
 
-C11 = cc -std=c11
+C11 = cc -std=c11 
 CFLAGS = -Wall -Werror
 
 $(PROJECT) : $(OBJ)
-	$(C11) $(CFLAGS) -o $(PROJECT) trove.o trovefile.o hash.o zipcat.o lists.o -lm
+	$(C11) -g $(CFLAGS) -o $(PROJECT) trove.o trovefile.o hash.o zipcat.o lists.o -lm
 
 trove.o : trove.c trove.h 
 	$(C11) $(CFLAGS) -c trove.c

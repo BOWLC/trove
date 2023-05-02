@@ -83,6 +83,7 @@ LISTWORD *get_listword(HASHWORD *table, char *word){
     }
     return NULL;
 }
+
 //returns the word list structure from a hash table
 LISTFILE *get_listfile(HASHFILE *table, char *path){
     int i = getIndex( path );

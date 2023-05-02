@@ -43,9 +43,16 @@ LISTWORD *new_listword(char *newword){
 }
 
 LISTWORD *add_listword(LISTWORD *list, char *newword){
+    printf("adding to listword\n");
     if(find_listword(list, newword)) return list; //only add each word once in a list
+    int id = 0;
+    if(list != NULL){
+        id = list->id + 1;
+    } 
     LISTWORD *new = new_listword(newword);
     new->next = list;
+    new->id = id;
+    printf("done adding to listword\n");
     return new;
 }
 
@@ -123,9 +130,16 @@ LISTFILE *new_listfile(char *newpath){
 }
 
 LISTFILE *add_listfile(LISTFILE *list, char *newpath){
+    printf("adding to listfile\n");
     if(find_listfile(list, newpath)) return list; //only add each word once in a list
+    int id = 0;
+    if(list != NULL){
+        id = list->id +1;
+    }
     LISTFILE *new = new_listfile(newpath);
     new->next = list;
+    new->id = id;
+    printf("done adding to listfile\n");
     return new;
 }
 
