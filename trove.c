@@ -119,27 +119,30 @@ int main(int argc, char *argv[]){
             }
             //all dirs OK
             if((dirp = opendir( path)) != NULL){
-            printf("main  ::  found a directory in args: %s.\n", path);
-            folderlist = add_listfile(folderlist, path);
+                printf("main  ::  found a directory in args: %s.\n", path);
+                folderlist = add_listfile(folderlist, path);
+                if(closedir(dirp) == EOF){
+                    perror("main");
+                }
             } 
             else{
-            hashfile_add(ptable, path); 
-            printf("main  ::  found a file in args: %s\n", path);
-            filelist = add_listfile(filelist, path);
+                hashfile_add(ptable, path); 
+                printf("main  ::  found a file in args: %s\n", path);
+                filelist = add_listfile(filelist, path);
 
             }
 
         }
 
-        printf("before findFiles\n");
-        filelist = findFiles(filelist, folderlist, ptable, lmin, fdir );//find files in directories
-        printf("got past findfiles call\n");
+        filelist = findFiles(filelist, folderlist, ptable, lmin);//find files in directories
+        
         if(bflag){
-            allwords = buildTrove(filelist, ptable, wtable, lmin);
-            printf("printing all words found::::::\n");
-            while(allwords !=  NULL){
-                printf("%s\n", allwords->word);
-                allwords = allwords->next;
+            allwords = buildTrove(filelist, folderlist, ptable, wtable, fdir, lmin);
+            LISTWORD *tmp = allwords;
+            printf("Words after building structs =============\n");
+            while(tmp !=  NULL){
+                printf("%s\n", tmp->word);
+                tmp = tmp->next;
             }
             
         }

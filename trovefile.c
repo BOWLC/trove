@@ -18,7 +18,7 @@ LISTFILE *filesindir(LISTFILE *path, char *folder, HASHFILE *ptable);//recursive
 
 void insertTrove(HASHWORD *wordhash, HASHFILE *pathhash, char *pathname, char *word);
 
-LISTFILE *findFiles(LISTFILE *filelist, LISTFILE *folders, HASHFILE *ptable, int wordmin, char *trovename){
+LISTFILE *findFiles(LISTFILE *filelist, LISTFILE *folders, HASHFILE *ptable, int wordmin){
 
     //add all files within folders to the list
     while(folders != NULL){
@@ -28,10 +28,12 @@ LISTFILE *findFiles(LISTFILE *filelist, LISTFILE *folders, HASHFILE *ptable, int
     return filelist;
 }
 
-LISTWORD  *buildTrove(LISTFILE *filelist, HASHFILE *pathhash, HASHWORD *wordhash, int wordmin){
+LISTWORD  *buildTrove(LISTFILE *filelist, LISTFILE *folderlist, HASHFILE *pathhash, HASHWORD *wordhash, char *trovename, int wordmin){
     printf("Build trove\n");
     LISTWORD *allwords = NULL;
+    LISTFILE *pathlist_start = filelist;
 
+    //read each file by character, adding words to list and hash table
     while(filelist!= NULL){
         FILE *spTrove;
         char *pathname = filelist->path;
@@ -72,7 +74,6 @@ LISTWORD  *buildTrove(LISTFILE *filelist, HASHFILE *pathhash, HASHWORD *wordhash
                 }
                 
             }
-            printf("\n");
 
             if(fclose(spTrove) == EOF){
                 printf("Error closing Trovefile built in buildTrove.\n");
@@ -80,6 +81,58 @@ LISTWORD  *buildTrove(LISTFILE *filelist, HASHFILE *pathhash, HASHWORD *wordhash
         }
         filelist = filelist->next;
     }
+
+    //Now save trove file as txt file
+    FILE *trovefilefp;
+
+    if((trovefilefp = fopen(trovename, "w")) == NULL){
+        perror("buildTrove writing trovefile");
+        exit(EXIT_FAILURE);
+    }
+
+    filelist = pathlist_start;
+    LISTWORD *allwords_start = allwords;
+    int numfiles = filelist->id + 1;
+    int numwords = allwords->id +1;
+
+    //write numfiles to new line
+    fputc((char)numfiles, trovefilefp);
+    fputc('\n', trovefilefp);
+    //write numwords to new line
+    fputc((char)numwords, trovefilefp);
+    fputc('\n', trovefilefp);
+    //write filelist to new lines
+    while(filelist != NULL){
+        fputs(filelist->path, trovefilefp);
+        fputc('\n', trovefilefp);
+        filelist = filelist->next;
+    }
+    //write words to new lines
+    while(allwords != NULL){
+        fputs(allwords->word, trovefilefp);
+        fputc('\n', trovefilefp);
+        allwords = allwords->next;
+    }
+    allwords = allwords_start;
+
+    /*write relation of each file to folder as a relation (1 for linked, 0 for not)
+     * for each char y on line x where char = '1', word of id x is related to file id y
+     * */
+    while(allwords != NULL){
+        LISTWORD *wordp = get_listword(wordhash, allwords->word);
+        LISTPATH *pathlist = wordp->path; // first path list item related to this word
+        printf("printing paths where \"%s\" is found :\n", wordp->word);
+        while(pathlist != NULL){
+            char *pathfound = pathlist->path->path;
+            int pathid = pathlist->path->id;
+            printf("%d : %s\n", pathid, pathfound);
+            pathlist = pathlist->next;
+        }
+
+        allwords = allwords->next;
+    }
+
+
     return allwords;
 }
 
