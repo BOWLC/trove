@@ -61,17 +61,17 @@ int main(int argc, char *argv[]){
         }
         if(opterr == '?') usage(1); //found unknown option
     }
+
+    int onum = bflag + rflag + uflag;
+    //mutually exclusive options combined
+    if(onum > 1) usage(1);
+
     if( bflag || rflag || uflag ){
         //read access requred
         if(f_access != 0){
             usage(5);
         }
     }
-
-    int onum = bflag + rflag + uflag;
-    //mutually exclusive options combined
-    if(onum > 1) usage(1);
-    
 
     if(!onum){
         //Search trovefile since other options not provided
@@ -118,16 +118,14 @@ int main(int argc, char *argv[]){
                 exit(EXIT_FAILURE);
             }
             //all dirs OK
-            if((dirp = opendir( path)) != NULL){
-                printf("main  ::  found a directory in args: %s.\n", path);
-                folderlist = add_listfile(folderlist, path);
+            if((dirp = opendir(path)) != NULL){
+                folderlist = add_listfile(folderlist, path); //found folder
                 if(closedir(dirp) == EOF){
                     perror("main");
                 }
             } 
             else{
-                hashfile_add(ptable, path); 
-                printf("main  ::  found a file in args: %s\n", path);
+                hashfile_add(ptable, path); //found file
                 filelist = add_listfile(filelist, path);
 
             }
@@ -141,7 +139,7 @@ int main(int argc, char *argv[]){
             LISTWORD *tmp = allwords;
             printf("Words after building structs =============\n");
             while(tmp !=  NULL){
-                printf("%s\n", tmp->word);
+                printf("%d: %s\n",tmp->id, tmp->word);
                 tmp = tmp->next;
             }
             

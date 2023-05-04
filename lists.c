@@ -43,7 +43,6 @@ LISTWORD *new_listword(char *newword){
 }
 
 LISTWORD *add_listword(LISTWORD *list, char *newword){
-    printf("adding to listword\n");
     if(find_listword(list, newword)) return list; //only add each word once in a list
     int id = 0;
     if(list != NULL){
@@ -52,7 +51,6 @@ LISTWORD *add_listword(LISTWORD *list, char *newword){
     LISTWORD *new = new_listword(newword);
     new->next = list;
     new->id = id;
-    printf("done adding to listword\n");
     return new;
 }
 
@@ -90,7 +88,9 @@ LISTPATH *new_listpath(LISTFILE *path){
 
 LISTPATH *add_listpath(LISTPATH *list, LISTFILE *path){
     if(find_listpath(list, path)) return list; //only add each word once in a list
-    if(path == NULL) printf("\t add_listpath :: LISTFILE *path is NULL!!!!!\n");
+    if(path == NULL){
+        printf("Error in add_listpath :: LISTFILE->path should never be null\n");
+    } 
     LISTPATH *new = new_listpath(path);
     new->next = list;
     return new;
@@ -130,7 +130,6 @@ LISTFILE *new_listfile(char *newpath){
 }
 
 LISTFILE *add_listfile(LISTFILE *list, char *newpath){
-    printf("adding to listfile\n");
     if(find_listfile(list, newpath)) return list; //only add each word once in a list
     int id = 0;
     if(list != NULL){
@@ -139,7 +138,6 @@ LISTFILE *add_listfile(LISTFILE *list, char *newpath){
     LISTFILE *new = new_listfile(newpath);
     new->next = list;
     new->id = id;
-    printf("done adding to listfile\n");
     return new;
 }
 
